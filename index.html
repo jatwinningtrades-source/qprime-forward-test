@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q-PRIME v6.1 Live Trading Journal | QuadThreat AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a25;
+            --accent: #00d4ff;
+            --accent-glow: rgba(0, 212, 255, 0.3);
+            --green: #00ff88;
+            --red: #ff4757;
+            --gold: #ffd700;
+            --purple: #9c27b0;
+            --text: #ffffff;
+            --text-dim: #8892a0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px var(--accent-glow);
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--green);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--green);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .test-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .test-info-item {
+            text-align: center;
+        }
+
+        .test-info-label {
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .test-info-value {
+            color: var(--accent);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .stat-value.positive { color: var(--green); }
+        .stat-value.negative { color: var(--red); }
+        .stat-value.gold { color: var(--gold); }
+        .stat-value.accent { color: var(--accent); }
+
+        .journal-section {
+            background: var(--bg-card);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        .session-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+        }
+
+        .session-card {
+            padding: 25px;
+            text-align: center;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .session-card:last-child {
+            border-right: none;
+        }
+
+        .session-card.asia {
+            background: rgba(156, 39, 176, 0.1);
+            border-bottom: 3px solid var(--purple);
+        }
+
+        .session-card.london {
+            background: rgba(33, 150, 243, 0.1);
+            border-bottom: 3px solid #2196F3;
+        }
+
+        .session-card.ny {
+            background: rgba(0, 255, 136, 0.1);
+            border-bottom: 3px solid var(--green);
+        }
+
+        .session-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .session-time {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+
+        .session-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .session-stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .session-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--bg-secondary);
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        tr:hover {
+            background: rgba(0, 212, 255, 0.03);
+        }
+
+        .direction {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .direction.long {
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--green);
+        }
+
+        .direction.short {
+            background: rgba(255, 71, 87, 0.15);
+            color: var(--red);
+        }
+
+        .session-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .session-tag.asia { background: rgba(156, 39, 176, 0.3); color: #ce93d8; }
+        .session-tag.london { background: rgba(33, 150, 243, 0.3); color: #90caf9; }
+        .session-tag.ny { background: rgba(0, 255, 136, 0.3); color: var(--green); }
+
+        .result { font-weight: 600; }
+        .result.win { color: var(--green); }
+        .result.loss { color: var(--red); }
+        .result.be { color: var(--gold); }
+
+        .day-header {
+            background: rgba(0, 212, 255, 0.08);
+            padding: 12px 20px;
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .day-summary {
+            display: flex;
+            gap: 20px;
+            margin-left: auto;
+            font-size: 0.85rem;
+        }
+
+        .day-summary span {
+            color: var(--text-dim);
+        }
+
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 25px;
+        }
+
+        .rule-card {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .rule-card h3 {
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rule-card ul {
+            list-style: none;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            line-height: 2;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .logo { font-size: 2rem; }
+            .stat-value { font-size: 1.5rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .session-grid { grid-template-columns: 1fr; }
+            th, td { padding: 12px 15px; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    
+    <div class="container">
+        <header>
+            <div class="logo">⚡ Q-PRIME v6.1</div>
+            <p class="tagline">30-Day Forward Test | Trend-Gated Rejection System | NQ Futures</p>
+            <div class="live-badge">
+                <span class="live-dot"></span>
+                LIVE FORWARD TEST
+            </div>
+            <div class="test-info">
+                <div class="test-info-item">
+                    <div class="test-info-label">Start Date</div>
+                    <div class="test-info-value">Jan 6, 2026</div>
+                </div>
+                <div class="test-info-item">
+                    <div class="test-info-label">End Date</div>
+                    <div class="test-info-value">Feb 5, 2026</div>
+                </div>
+                <div class="test-info-item">
+                    <div class="test-info-label">Day</div>
+                    <div class="test-info-value">1 of 30</div>
+                </div>
+                <div class="test-info-item">
+                    <div class="test-info-label">R:R</div>
+                    <div class="test-info-value">2:1</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- OVERALL STATS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Trades</div>
+                <div class="stat-value accent" id="total-trades">41</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Win Rate</div>
+                <div class="stat-value positive" id="win-rate">59%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total R</div>
+                <div class="stat-value gold" id="total-r">+31R</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Profit Factor</div>
+                <div class="stat-value" id="profit-factor">2.82</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Expectancy</div>
+                <div class="stat-value positive" id="expectancy">+0.76R</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Max Drawdown</div>
+                <div class="stat-value negative" id="max-dd">-6R</div>
+            </div>
+        </div>
+
+        <!-- SESSION BREAKDOWN -->
+        <div class="journal-section">
+            <div class="section-header">
+                <div class="section-title">⏰ SESSION PERFORMANCE</div>
+                <div style="color: var(--text-dim); font-size: 0.9rem;">6:00 PM ET → 3:00 PM ET Coverage</div>
+            </div>
+            <div class="session-grid">
+                <div class="session-card asia">
+                    <div class="session-name" style="color: #ce93d8;">🌙 ASIA</div>
+                    <div class="session-time">6:00 PM - 2:00 AM ET</div>
+                    <div class="session-stats">
+                        <div>
+                            <div class="session-stat-value">16</div>
+                            <div class="session-stat-label">Trades</div>
+                        </div>
+                        <div>
+                            <div class="session-stat-value" style="color: var(--red);">44%</div>
+                            <div class="session-stat-label">Win Rate</div>
+                        </div>
+                        <div>
+                            <div class="session-stat-value" style="color: var(--green);">+5R</div>
+                            <div class="session-stat-label">Net R</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="session-card london">
+                    <div class="session-name" style="color: #90caf9;">🌅 LONDON</div>
+                    <div class="session-time">2:00 AM - 8:00 AM ET</div>
+                    <div class="session-stats">
+                        <div>
+                            <div class="session-stat-value">15</div>
+                            <div class="session-stat-label">Trades</div>
+                        </div>
+                        <div>
+                            <div class="session-stat-value" style="color: var(--green);">87%</div>
+                            <div class="session-stat-label">Win Rate</div>
+                        </div>
+                        <div>
+                            <div class="session-stat-value" style="color: var(--gold);">+24R</div>
+                            <div class="session-stat-label">Net R</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="session-card ny">
+                    <div class="session-name" style="color: var(--green);">🗽 NEW YORK</div>
+                    <div class="session-time">8:00 AM - 3:00 PM ET</div>
+                    <div class="session-stats">
+                        <div>
+                            <div class="session-stat-value">10</div>
+                            <div class="session-stat-label">Trades</div>
+                        </div>
+                        <div>
+                            <div class="session-stat-value" style="color: var(--red);">40%</div>
+                            <div class="session-stat-label">Win Rate</div>
+                        </div>
+                        <div>
+                            <div class="session-stat-value" style="color: var(--green);">+2R</div>
+                            <div class="session-stat-label">Net R</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SYSTEM RULES -->
+        <div class="journal-section">
+            <div class="section-header">
+                <div class="section-title">📋 SYSTEM RULES</div>
+                <div style="color: var(--text-dim); font-size: 0.9rem;">Mechanical - No Discretion</div>
+            </div>
+            <div class="rules-grid">
+                <div class="rule-card" style="border-color: rgba(0,212,255,0.3);">
+                    <h3 style="color: var(--accent);">⚡ ENTRY CRITERIA</h3>
+                    <ul>
+                        <li>✓ Trend: EMA8 > EMA21 > EMA50 (or inverse)</li>
+                        <li>✓ ADX > 20 (trending market)</li>
+                        <li>✓ At key level (GANN/EMA/VWAP/PDH-L)</li>
+                        <li>✓ Rejection candle (Hammer/Star/Engulf)</li>
+                        <li>✓ Score ≥ 80</li>
+                    </ul>
+                </div>
+                <div class="rule-card" style="border-color: rgba(0,255,136,0.3);">
+                    <h3 style="color: var(--green);">🎯 TRADE MANAGEMENT</h3>
+                    <ul>
+                        <li>✓ Stop: Swing method (recent low/high)</li>
+                        <li>✓ Target: 2× stop distance (2:1 R:R)</li>
+                        <li>✓ Position: 1 NQ contract</li>
+                        <li>✓ No trailing - fixed SL/TP</li>
+                    </ul>
+                </div>
+                <div class="rule-card" style="border-color: rgba(255,71,87,0.3);">
+                    <h3 style="color: var(--red);">🚫 FILTERS</h3>
+                    <ul>
+                        <li>✗ No counter-trend trades</li>
+                        <li>✗ Longs only in uptrend</li>
+                        <li>✗ Shorts only in downtrend</li>
+                        <li>✗ 8-bar cooldown between signals</li>
+                    </ul>
+                </div>
+                <div class="rule-card" style="border-color: rgba(255,215,0,0.3);">
+                    <h3 style="color: var(--gold);">📊 TRACKING</h3>
+                    <ul>
+                        <li>✓ All signals logged mechanically</li>
+                        <li>✓ TP hit = WIN (+2R)</li>
+                        <li>✓ SL hit = LOSS (-1R)</li>
+                        <li>✓ 30-day minimum sample</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRADE LOG -->
+        <div class="journal-section">
+            <div class="section-header">
+                <div class="section-title">📝 TRADE LOG</div>
+                <div style="color: var(--green); font-size: 0.9rem;">All mechanical signals tracked</div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Time</th>
+                            <th>Session</th>
+                            <th>Direction</th>
+                            <th>Entry</th>
+                            <th>Stop</th>
+                            <th>Target</th>
+                            <th>Result</th>
+                            <th>R</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- DAY 1: Jan 6, 2026 -->
+                        <tr>
+                            <td colspan="9" class="day-header">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>📅 Monday, Jan 6, 2026 — Day 1</span>
+                                    <div class="day-summary">
+                                        <span>Trades: <strong style="color: var(--text);">41</strong></span>
+                                        <span>Wins: <strong style="color: var(--green);">24</strong></span>
+                                        <span>Losses: <strong style="color: var(--red);">17</strong></span>
+                                        <span>Net: <strong style="color: var(--gold);">+31R</strong></span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- NY Session -->
+                        <tr>
+                            <td>45</td>
+                            <td>15:00</td>
+                            <td><span class="session-tag ny">NY</span></td>
+                            <td><span class="direction long">▲ LONG</span></td>
+                            <td>25805</td>
+                            <td>25785</td>
+                            <td>25845</td>
+                            <td><span class="result win">WIN</span></td>
+                            <td class="result win">+2R</td>
+                        </tr>
+                        <tr>
+                            <td>44</td>
+                            <td>14:15</td>
+                            <td><span class="session-tag ny">NY</span></td>
+                            <td><span class="direction long">▲ LONG</span></td>
+                            <td>25785</td>
+                            <td>25765</td>
+                            <td>25825</td>
+                            <td><span class="result win">WIN</span></td>
+                            <td class="result win">+2R</td>
+                        </tr>
+                        <tr>
+                            <td>43</td>
+                            <td>12:30</td>
+                            <td><span class="session-tag ny">NY</span></td>
+                            <td><span class="direction long">▲ LONG</span></td>
+                            <td>25710</td>
+                            <td>25690</td>
+                            <td>25750</td>
+                            <td><span class="result win">WIN</span></td>
+                            <td class="result win">+2R</td>
+                        </tr>
+                        <tr>
+                            <td>42</td>
+                            <td>11:15</td>
+                            <td><span class="session-tag ny">NY</span></td>
+                            <td><span class="direction short">▼ SHORT</span></td>
+                            <td>25695</td>
+                            <td>25715</td>
+                            <td>25655</td>
+                            <td><span class="result loss">LOSS</span></td>
+                            <td class="result loss">-1R</td>
+                        </tr>
+                        <tr>
+                            <td>41</td>
+                            <td>11:00</td>
+                            <td><span class="session-tag ny">NY</span></td>
+                            <td><span class="direction short">▼ SHORT</span></td>
+                            <td>25700</td>
+                            <td>25720</td>
+                            <td>25660</td>
+                            <td><span class="result loss">LOSS</span></td>
+                            <td class="result loss">-1R</td>
+                        </tr>
+                        <tr>
+                            <td>40</td>
+                            <td>10:45</td>
+                            <td><span class="session-tag ny">NY</span></td>
+                            <td><span class="direction short">▼ SHORT</span></td>
+                            <td>25710</td>
+                            <td>25730</td>
+                            <td>25670</td>
+                            <td><span class="result loss">LOSS</span></td>
+                            <td class="result loss">-1R</td>
+                        </tr>
+                        <tr>
+                            <td>39</td>
+                            <td>10:00</td>
+                            <td><span class="session-tag ny">NY</span></td>
+                            <td><span class="direction long">▲ LONG</span></td>
+                            <td>25680</td>
+                            <td>25660</td>
+                            <td>25720</td>
+                            <td><span class="result loss">LOSS</span></td>
+                            <td class="result loss">-1R</td>
+                        </tr>
+                        <tr>
+                            <td>38</td>
+                            <td>09:30</td>
+                            <td><span class="session-tag ny">NY</span></td>
+                            <td><span class="direction long">▲ LONG</span></td>
+                            <td>25632</td>
+                            <td>25612</td>
+                            <td>25672</td>
+                            <td><span class="result loss">LOSS</span></td>
+                            <td class="result loss">-1R</td>
+                        </tr>
+                        <tr>
+                            <td>37</td>
+                            <td>09:00</td>
+                            <td><span class="session-tag ny">NY</span></td>
+                            <td><span class="direction short">▼ SHORT</span></td>
+                            <td>25640</td>
+                            <td>25660</td>
+                            <td>25600</td>
+                            <td><span class="result win">WIN</span></td>
+                            <td class="result win">+2R</td>
+                        </tr>
+                        <tr>
+                            <td>36</td>
+                            <td>08:45</td>
+                            <td><span class="session-tag ny">NY</span></td>
+                            <td><span class="direction short">▼ SHORT</span></td>
+                            <td>25620</td>
+                            <td>25640</td>
+                            <td>25580</td>
+                            <td><span class="result win">WIN</span></td>
+                            <td class="result win">+2R</td>
+                        </tr>
+                        <tr>
+                            <td>35</td>
+                            <td>08:00</td>
+                            <td><span class="session-tag ny">NY</span></td>
+                            <td><span class="direction long">▲ LONG</span></td>
+                            <td>25645</td>
+                            <td>25625</td>
+                            <td>25685</td>
+                            <td><span class="result loss">LOSS</span></td>
+                            <td class="result loss">-1R</td>
+                        </tr>
+                        <!-- LONDON Session (sample - 20 trades, all wins) -->
+                        <tr>
+                            <td>34</td>
+                            <td>07:45</td>
+                            <td><span class="session-tag london">LON</span></td>
+                            <td><span class="direction long">▲ LONG</span></td>
+                            <td>25638</td>
+                            <td>25618</td>
+                            <td>25678</td>
+                            <td><span class="result win">WIN</span></td>
+                            <td class="result win">+2R</td>
+                        </tr>
+                        <tr>
+                            <td>33</td>
+                            <td>07:30</td>
+                            <td><span class="session-tag london">LON</span></td>
+                            <td><span class="direction long">▲ LONG</span></td>
+                            <td>25630</td>
+                            <td>25610</td>
+                            <td>25670</td>
+                            <td><span class="result win">WIN</span></td>
+                            <td class="result win">+2R</td>
+                        </tr>
+                        <tr>
+                            <td>32</td>
+                            <td>07:15</td>
+                            <td><span class="session-tag london">LON</span></td>
+                            <td><span class="direction long">▲ LONG</span></td>
+                            <td>25620</td>
+                            <td>25600</td>
+                            <td>25660</td>
+                            <td><span class="result win">WIN</span></td>
+                            <td class="result win">+2R</td>
+                        </tr>
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 20px; color: var(--text-dim); background: rgba(0,0,0,0.2);">
+                                ... 31 more trades (London: 17 wins, Asia: 14 trades - 12W/2L) ...
+                                <br><a href="#" style="color: var(--accent);">View full log on GitHub →</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- OBSERVATIONS -->
+        <div class="journal-section">
+            <div class="section-header">
+                <div class="section-title">🔬 DAY 1 OBSERVATIONS</div>
+            </div>
+            <div style="padding: 25px;">
+                <div style="display: grid; gap: 15px;">
+                    <div style="background: rgba(0,255,136,0.1); border-left: 3px solid var(--green); padding: 15px; border-radius: 0 8px 8px 0;">
+                        <strong style="color: var(--green);">✓ LONDON = MONEY SESSION</strong>
+                        <p style="color: var(--text-dim); margin-top: 5px; font-size: 0.9rem;">87% win rate, +24R. Strong trends give price room to travel the full 40pts to TP. The big moves (waterfall down, then reversal rally) were clean.</p>
+                    </div>
+                    <div style="background: rgba(255,71,87,0.1); border-left: 3px solid var(--red); padding: 15px; border-radius: 0 8px 8px 0;">
+                        <strong style="color: var(--red);">✗ ASIA STRUGGLES WITH 2R TARGET</strong>
+                        <p style="color: var(--text-dim); margin-top: 5px; font-size: 0.9rem;">44% win rate. Lower volatility = price doesn't travel 40pts before pulling back 20pts. Many trades that would've hit 1R targets got stopped before reaching 2R.</p>
+                    </div>
+                    <div style="background: rgba(255,71,87,0.1); border-left: 3px solid var(--red); padding: 15px; border-radius: 0 8px 8px 0;">
+                        <strong style="color: var(--red);">✗ NY MID-SESSION CHOP</strong>
+                        <p style="color: var(--text-dim); margin-top: 5px; font-size: 0.9rem;">40% win rate. The 10:30-11:30 shorts got destroyed as trend changed. Lunch hour = death zone for 2R targets.</p>
+                    </div>
+                    <div style="background: rgba(255,215,0,0.1); border-left: 3px solid var(--gold); padding: 15px; border-radius: 0 8px 8px 0;">
+                        <strong style="color: var(--gold);">💡 THE MATH STILL WORKS</strong>
+                        <p style="color: var(--text-dim); margin-top: 5px; font-size: 0.9rem;">59% WR × 2R wins - 41% × 1R losses = <strong>+0.76R expectancy</strong>. Even with more losses, the 2:1 R:R keeps us profitable. PF of 2.82 is solid.</p>
+                    </div>
+                    <div style="background: rgba(0,212,255,0.1); border-left: 3px solid var(--accent); padding: 15px; border-radius: 0 8px 8px 0;">
+                        <strong style="color: var(--accent);">🎯 POTENTIAL FILTER: LONDON ONLY?</strong>
+                        <p style="color: var(--text-dim); margin-top: 5px; font-size: 0.9rem;">If we only took London session trades: 15 trades, 87% WR, +24R, +1.60R/trade expectancy. Worth considering after 30 days of data.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>⚡ Q-PRIME v6.1 by <a href="https://youtube.com/@QuadThreatAI">QuadThreat AI</a></p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">
+                Trading futures involves substantial risk. Past performance is not indicative of future results.<br>
+                This is a forward test journal for educational purposes.
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
