@@ -1,1 +1,324 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q-PRIME v6.3 | 90-Day Forward Test Journal</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-card-hover: #1a1a2e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-cyan: #00d4ff;
+            --accent-gold: #FFD700;
+            --accent-green: #00ff88;
+            --accent-red: #ff4757;
+            --accent-orange: #FF6D00;
+            --accent-purple: #9C27B0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--bg-card) 0%, #1a1a3e 100%);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0,212,255,0.2);
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .header .subtitle { color: var(--text-secondary); font-size: 1.1rem; }
+        .header .badges { margin-top: 15px; }
+        .header .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .header .badge.gold { background: var(--accent-gold); color: #000; }
+        .header .badge.cyan { background: var(--accent-cyan); color: #000; }
+        .header .badge.green { background: var(--accent-green); color: #000; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-5px); border-color: var(--accent-cyan); }
+        .stat-card .value { font-size: 2.2rem; font-weight: bold; margin-bottom: 5px; }
+        .stat-card .label { color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card.positive .value { color: var(--accent-green); }
+        .stat-card.negative .value { color: var(--accent-red); }
+        .stat-card.neutral .value { color: var(--accent-cyan); }
+        .stat-card.gold .value { color: var(--accent-gold); }
+        
+        .day-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .day-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .day-card.win { border-left: 4px solid var(--accent-green); }
+        .day-card.loss { border-left: 4px solid var(--accent-red); }
+        .day-card h3 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .day-card h3 .date { color: var(--accent-cyan); font-size: 1rem; }
+        .day-card h3 .result { padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; }
+        .day-card h3 .result.positive { background: rgba(0,255,136,0.2); color: var(--accent-green); }
+        .day-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+        .day-stat { text-align: center; }
+        .day-stat .val { font-size: 1.3rem; font-weight: bold; }
+        .day-stat .lbl { font-size: 0.7rem; color: var(--text-secondary); }
+        .day-notes { background: var(--bg-dark); padding: 10px; border-radius: 8px; font-size: 0.85rem; color: var(--text-secondary); }
+        
+        .section {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .section h2 { color: var(--accent-cyan); margin-bottom: 20px; font-size: 1.3rem; }
+        
+        .trade-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .trade-table th {
+            text-align: left; padding: 10px; background: var(--bg-dark);
+            color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .trade-table td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .trade-table tr:hover { background: var(--bg-card-hover); }
+        .trade-table .win { color: var(--accent-green); }
+        .trade-table .loss { color: var(--accent-red); }
+        .trade-table .long { color: var(--accent-cyan); }
+        .trade-table .short { color: var(--accent-orange); }
+        .trade-table .day-header { background: linear-gradient(90deg, var(--bg-dark), transparent); font-weight: bold; color: var(--accent-gold); }
+        .session-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+        .session-tag.ny { background: rgba(76,175,80,0.2); color: #4CAF50; }
+        .session-tag.london { background: rgba(33,150,243,0.2); color: #2196F3; }
+        .session-tag.asia { background: rgba(156,39,176,0.2); color: #9C27B0; }
+        
+        .rules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; }
+        .rule-card { background: var(--bg-dark); padding: 15px; border-radius: 10px; }
+        .rule-card h4 { color: var(--accent-gold); margin-bottom: 10px; font-size: 0.9rem; }
+        .rule-card ul { list-style: none; }
+        .rule-card li { padding: 4px 0; color: var(--text-secondary); font-size: 0.85rem; }
+        .rule-card li::before { content: "→ "; color: var(--accent-cyan); }
+        
+        .footer { text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Q-PRIME FORWARD TEST</h1>
+            <p class="subtitle">90-Day Live Performance Journal | NQ Futures</p>
+            <div class="badges">
+                <span class="badge gold">v6.3 REVERSAL</span>
+                <span class="badge cyan">30-Second Chart</span>
+                <span class="badge green">+47R in 3 Days</span>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card neutral">
+                <div class="value">3</div>
+                <div class="label">Days Tested</div>
+            </div>
+            <div class="stat-card positive">
+                <div class="value">+47R</div>
+                <div class="label">Total P&L</div>
+            </div>
+            <div class="stat-card neutral">
+                <div class="value">65%</div>
+                <div class="label">Win Rate</div>
+            </div>
+            <div class="stat-card gold">
+                <div class="value">3.76</div>
+                <div class="label">Profit Factor</div>
+            </div>
+            <div class="stat-card neutral">
+                <div class="value">49</div>
+                <div class="label">Total Trades</div>
+            </div>
+            <div class="stat-card positive">
+                <div class="value">32W</div>
+                <div class="label">Winners</div>
+            </div>
+            <div class="stat-card negative">
+                <div class="value">17L</div>
+                <div class="label">Losers</div>
+            </div>
+            <div class="stat-card positive">
+                <div class="value">+0.96R</div>
+                <div class="label">Expectancy</div>
+            </div>
+        </div>
+        
+        <div class="day-cards">
+            <div class="day-card win">
+                <h3>
+                    <span class="date">📅 FRI Jan 3</span>
+                    <span class="result positive">+7R</span>
+                </h3>
+                <div class="day-stats">
+                    <div class="day-stat"><div class="val" style="color: var(--accent-green);">80%</div><div class="lbl">Win Rate</div></div>
+                    <div class="day-stat"><div class="val">5</div><div class="lbl">Trades</div></div>
+                    <div class="day-stat"><div class="val">4W/1L</div><div class="lbl">Record</div></div>
+                </div>
+                <div class="day-notes">🎯 Caught the big reversal at 25,809 top. All shorts worked until bottom fishing at 11:00.</div>
+            </div>
+            
+            <div class="day-card win">
+                <h3>
+                    <span class="date">📅 MON Jan 5</span>
+                    <span class="result positive">+32R</span>
+                </h3>
+                <div class="day-stats">
+                    <div class="day-stat"><div class="val" style="color: var(--accent-green);">68%</div><div class="lbl">Win Rate</div></div>
+                    <div class="day-stat"><div class="val">31</div><div class="lbl">Trades</div></div>
+                    <div class="day-stat"><div class="val">21W/10L</div><div class="lbl">Record</div></div>
+                </div>
+                <div class="day-notes">🔥 MONSTER DAY! Morning LONGs from 25,480→25,700 = +27R. Afternoon shorts choppy but still +5R.</div>
+            </div>
+            
+            <div class="day-card win">
+                <h3>
+                    <span class="date">📅 TUE Jan 6</span>
+                    <span class="result positive">+8R</span>
+                </h3>
+                <div class="day-stats">
+                    <div class="day-stat"><div class="val" style="color: var(--accent-gold);">54%</div><div class="lbl">Win Rate</div></div>
+                    <div class="day-stat"><div class="val">13</div><div class="lbl">Trades</div></div>
+                    <div class="day-stat"><div class="val">7W/6L</div><div class="lbl">Record</div></div>
+                </div>
+                <div class="day-notes">☀️ Morning LONGs 4/4 wins (+8R). Afternoon shorts were choppy 3/9. Trust morning momentum!</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📋 Trade Log (Last 2 Days)</h2>
+            <table class="trade-table">
+                <thead>
+                    <tr><th>Time</th><th>Session</th><th>Dir</th><th>Entry</th><th>Result</th><th>R</th><th>Notes</th></tr>
+                </thead>
+                <tbody>
+                    <tr class="day-header"><td colspan="7">📅 MONDAY JAN 5 — +32R (21W/10L = 68%) 🔥 MONSTER DAY</td></tr>
+                    <tr><td>00:30</td><td><span class="session-tag asia">ASIA</span></td><td class="long">LONG</td><td>25,481</td><td class="win">WIN</td><td class="win">+2R</td><td>Uptrend start</td></tr>
+                    <tr><td>01:00</td><td><span class="session-tag asia">ASIA</span></td><td class="long">LONG</td><td>25,495</td><td class="win">WIN</td><td class="win">+2R</td><td>Continuation</td></tr>
+                    <tr><td>02:00</td><td><span class="session-tag london">LON</span></td><td class="long">LONG</td><td>25,506</td><td class="win">WIN</td><td class="win">+2R</td><td>London push</td></tr>
+                    <tr><td>02:30</td><td><span class="session-tag london">LON</span></td><td class="long">LONG</td><td>25,501</td><td class="win">WIN</td><td class="win">+2R</td><td>Trend strong</td></tr>
+                    <tr><td>03:00</td><td><span class="session-tag london">LON</span></td><td class="long">LONG</td><td>25,517</td><td class="win">WIN</td><td class="win">+2R</td><td>Momentum</td></tr>
+                    <tr><td>03:30</td><td><span class="session-tag london">LON</span></td><td class="long">LONG</td><td>25,520</td><td class="loss">LOSS</td><td class="loss">-1R</td><td>Pullback stop</td></tr>
+                    <tr><td>04:00</td><td><span class="session-tag london">LON</span></td><td class="long">LONG</td><td>25,532</td><td class="win">WIN</td><td class="win">+2R</td><td>Back in trend</td></tr>
+                    <tr><td>04:30</td><td><span class="session-tag london">LON</span></td><td class="long">LONG</td><td>25,552</td><td class="win">WIN</td><td class="win">+2R</td><td>Strong push</td></tr>
+                    <tr><td>05:00</td><td><span class="session-tag london">LON</span></td><td class="long">LONG</td><td>25,547</td><td class="win">WIN</td><td class="win">+2R</td><td>Continuation</td></tr>
+                    <tr><td>05:30</td><td><span class="session-tag london">LON</span></td><td class="long">LONG</td><td>25,564</td><td class="win">WIN</td><td class="win">+2R</td><td>Trend intact</td></tr>
+                    <tr><td>06:00</td><td><span class="session-tag london">LON</span></td><td class="long">LONG</td><td>25,572</td><td class="win">WIN</td><td class="win">+2R</td><td>To NY</td></tr>
+                    <tr><td>06:30</td><td><span class="session-tag london">LON</span></td><td class="long">LONG</td><td>25,580</td><td class="loss">LOSS</td><td class="loss">-1R</td><td>Small pullback</td></tr>
+                    <tr><td>07:00</td><td><span class="session-tag london">LON</span></td><td class="long">LONG</td><td>25,585</td><td class="win">WIN</td><td class="win">+2R</td><td>Back in</td></tr>
+                    <tr><td>08:00</td><td><span class="session-tag ny">NY</span></td><td class="long">LONG</td><td>25,590</td><td class="win">WIN</td><td class="win">+2R</td><td>NY open</td></tr>
+                    <tr><td>09:00</td><td><span class="session-tag ny">NY</span></td><td class="long">LONG</td><td>25,610</td><td class="win">WIN</td><td class="win">+2R</td><td>Morning push</td></tr>
+                    <tr><td>09:30</td><td><span class="session-tag ny">NY</span></td><td class="long">LONG</td><td>25,625</td><td class="win">WIN</td><td class="win">+2R</td><td>Strong</td></tr>
+                    <tr><td>10:00</td><td><span class="session-tag ny">NY</span></td><td class="long">LONG</td><td>25,655</td><td class="win">WIN</td><td class="win">+2R</td><td>⚡ TOP at 25,695!</td></tr>
+                    <tr><td>10:30</td><td><span class="session-tag ny">NY</span></td><td class="long">LONG</td><td>25,654</td><td class="loss">LOSS</td><td class="loss">-1R</td><td>Top reversal</td></tr>
+                    <tr><td>13:00</td><td><span class="session-tag ny">NY</span></td><td class="short">SHORT</td><td>25,640</td><td class="win">WIN</td><td class="win">+2R</td><td>First short</td></tr>
+                    <tr><td>13:30</td><td><span class="session-tag ny">NY</span></td><td class="short">SHORT</td><td>25,630</td><td class="win">WIN</td><td class="win">+2R</td><td>Continuation</td></tr>
+                    <tr><td>14:00-19:00</td><td><span class="session-tag ny">NY</span></td><td class="short">SHORTs</td><td>Various</td><td>MIXED</td><td>+1R</td><td>Choppy afternoon (4W/7L)</td></tr>
+                    
+                    <tr class="day-header"><td colspan="7">📅 TUESDAY JAN 6 — +8R (7W/6L = 54%)</td></tr>
+                    <tr><td>08:45</td><td><span class="session-tag ny">NY</span></td><td class="long">LONG</td><td>25,535</td><td class="win">WIN</td><td class="win">+2R</td><td>Strong open</td></tr>
+                    <tr><td>09:00</td><td><span class="session-tag ny">NY</span></td><td class="long">LONG</td><td>25,560</td><td class="win">WIN</td><td class="win">+2R</td><td>Continuation</td></tr>
+                    <tr><td>09:15</td><td><span class="session-tag ny">NY</span></td><td class="long">LONG</td><td>25,580</td><td class="win">WIN</td><td class="win">+2R</td><td>Momentum</td></tr>
+                    <tr><td>09:30</td><td><span class="session-tag ny">NY</span></td><td class="long">LONG</td><td>25,625</td><td class="win">WIN</td><td class="win">+2R</td><td>🔥 TP at 25,695</td></tr>
+                    <tr><td>12:15</td><td><span class="session-tag ny">NY</span></td><td class="short">SHORT</td><td>25,610</td><td class="loss">LOSS</td><td class="loss">-1R</td><td>Midday chop</td></tr>
+                    <tr><td>12:30</td><td><span class="session-tag ny">NY</span></td><td class="short">SHORT</td><td>25,615</td><td class="loss">LOSS</td><td class="loss">-1R</td><td>Still choppy</td></tr>
+                    <tr><td>14:00</td><td><span class="session-tag ny">NY</span></td><td class="short">SHORT</td><td>25,595</td><td class="loss">LOSS</td><td class="loss">-1R</td><td>Bounced</td></tr>
+                    <tr><td>14:30</td><td><span class="session-tag ny">NY</span></td><td class="short">SHORT</td><td>25,590</td><td class="win">WIN</td><td class="win">+2R</td><td>Finally down</td></tr>
+                    <tr><td>15:00</td><td><span class="session-tag ny">NY</span></td><td class="short">SHORT</td><td>25,580</td><td class="win">WIN</td><td class="win">+2R</td><td>Continuation</td></tr>
+                    <tr><td>15:15</td><td><span class="session-tag ny">NY</span></td><td class="short">SHORT</td><td>25,585</td><td class="loss">LOSS</td><td class="loss">-1R</td><td>Whipsaw</td></tr>
+                    <tr><td>15:30</td><td><span class="session-tag ny">NY</span></td><td class="short">SHORT</td><td>25,595</td><td class="win">WIN</td><td class="win">+2R</td><td>EOD push</td></tr>
+                    <tr><td>16:00</td><td><span class="session-tag ny">NY</span></td><td class="short">SHORT</td><td>25,605</td><td class="loss">LOSS</td><td class="loss">-1R</td><td>Late chop</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>📐 Q-PRIME v6.3 System Rules</h2>
+            <div class="rules-grid">
+                <div class="rule-card">
+                    <h4>🚪 Entry Criteria</h4>
+                    <ul>
+                        <li>TREND: EMA 8/21/50 stacked + ADX>20</li>
+                        <li>LEVEL: At GANN/EMA/VWAP/PDH-L</li>
+                        <li>REJECTION: Hammer/Star/Engulfing</li>
+                        <li>SCORE: Minimum 80 points</li>
+                    </ul>
+                </div>
+                <div class="rule-card">
+                    <h4>⚡ Reversal Mode (v6.3)</h4>
+                    <ul>
+                        <li>Failed Breakout detection</li>
+                        <li>Break of Structure signals</li>
+                        <li>Gold diamonds = reversals</li>
+                        <li>Works AGAINST trend</li>
+                    </ul>
+                </div>
+                <div class="rule-card">
+                    <h4>🎯 Trade Management</h4>
+                    <ul>
+                        <li>R:R = 2:1 (20pt stop, 40pt target)</li>
+                        <li>Timeframe: 30-second chart</li>
+                        <li>Cooldown: 8 bars</li>
+                        <li>All sessions tradeable</li>
+                    </ul>
+                </div>
+                <div class="rule-card">
+                    <h4>📊 Key Insights</h4>
+                    <ul>
+                        <li>Morning momentum = HIGH WR</li>
+                        <li>Midday 12-14 = AVOID/reduce</li>
+                        <li>Trend days = stay with it</li>
+                        <li>30s chart = lots of signals</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Q-PRIME v6.3 Forward Test | QuadThreat AI | Updated: Jan 6, 2026</p>
+            <p>Test Period: Jan 3 - Apr 3, 2026 (90 Days) | Progress: 3/90 Days (3%)</p>
+        </div>
+    </div>
+</body>
+</html>
